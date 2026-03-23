@@ -45,7 +45,7 @@ cd ~/dotai && make
 
 I use multiple tools for different purposes, and I like to try something new for more experience.
 
-- OpenCode: For background tasks and multi-agent workflows.
+- opencode: The main AI agent for background tasks and multi-agent workflows.
 - GitHub Copilot in VS Code (extension): For hands-on coding, autocompletion, unit test generation, and code reviews.
 - Antigravity: For frontend development, with integrated browser testing.
 
@@ -62,3 +62,13 @@ I prefer the AI to generate code in these languages because I am most familiar w
 
 - TypeScript: For frontend development (web, mobile, desktop), CLI tools, and Bun backend servers.
 - Go: For high-performance, concurrent backend servers and CLI tools.
+
+## Conventions
+
+### Git Commits
+
+Git commit messages should follow the Conventional Commits format and include issue tracking IDs when applicable.
+
+Examples:
+- Jira issue: `feat(scope): [IN-999] change something` (where `IN-999` is a Jira ID)
+- GitHub issue: `feat(scope): [#999] change something` (where `#999` is a GitHub issue ID)
