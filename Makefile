@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-SYSTEMD_SERVICES := hermes-gateway hermes-dashboard # hermes-workspace hermes-webui
+SYSTEMD_SERVICES := hermes-gateway hermes-dashboard hermes-workspace hermes-webui
 SYSTEMD_DIR := $(CURDIR)/systemd
 
 .PHONY: systemd-generate systemd-link systemd-enable systemd-disable systemd-start systemd-stop systemd-status systemd-logs systemd-refresh
@@ -9,15 +9,15 @@ systemd-generate:
 	@command -v envsubst >/dev/null 2>&1 || (echo "Error: envsubst not found. Install gettext package." && exit 1)
 	@env USER="$(USER)" HOME="$(HOME)" envsubst < "$(SYSTEMD_DIR)/hermes-gateway.service.template" > "$(SYSTEMD_DIR)/hermes-gateway.service"
 	@env USER="$(USER)" HOME="$(HOME)" envsubst < "$(SYSTEMD_DIR)/hermes-dashboard.service.template" > "$(SYSTEMD_DIR)/hermes-dashboard.service"
-# 	@env USER="$(USER)" HOME="$(HOME)" envsubst < "$(SYSTEMD_DIR)/hermes-workspace.service.template" > "$(SYSTEMD_DIR)/hermes-workspace.service"
-# 	@env USER="$(USER)" HOME="$(HOME)" envsubst < "$(SYSTEMD_DIR)/hermes-webui.service.template" > "$(SYSTEMD_DIR)/hermes-webui.service"
+	@env USER="$(USER)" HOME="$(HOME)" envsubst < "$(SYSTEMD_DIR)/hermes-workspace.service.template" > "$(SYSTEMD_DIR)/hermes-workspace.service"
+	@env USER="$(USER)" HOME="$(HOME)" envsubst < "$(SYSTEMD_DIR)/hermes-webui.service.template" > "$(SYSTEMD_DIR)/hermes-webui.service"
 	@echo "Generated systemd service files from templates"
 
 systemd-link: systemd-generate
 	@sudo ln -sf "$(SYSTEMD_DIR)/hermes-gateway.service" /etc/systemd/system/hermes-gateway.service
 	@sudo ln -sf "$(SYSTEMD_DIR)/hermes-dashboard.service" /etc/systemd/system/hermes-dashboard.service
-# 	@sudo ln -sf "$(SYSTEMD_DIR)/hermes-workspace.service" /etc/systemd/system/hermes-workspace.service
-# 	@sudo ln -sf "$(SYSTEMD_DIR)/hermes-webui.service" /etc/systemd/system/hermes-webui.service
+	@sudo ln -sf "$(SYSTEMD_DIR)/hermes-workspace.service" /etc/systemd/system/hermes-workspace.service
+	@sudo ln -sf "$(SYSTEMD_DIR)/hermes-webui.service" /etc/systemd/system/hermes-webui.service
 	@sudo systemctl daemon-reload
 	@echo "Linked systemd unit files from $(SYSTEMD_DIR)"
 
