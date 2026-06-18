@@ -8,16 +8,13 @@
 # Check status
 sudo systemctl status hermes-gateway
 sudo systemctl status hermes-dashboard
-sudo systemctl status hermes-workspace
 
 # Check logs
 sudo journalctl -u hermes-gateway -f
-sudo journalctl -u hermes-workspace -f
 ```
 
 **Fix:** Ensure the env files exist and have correct paths:
 - `~/hermes-gateway.env`
-- `~/hermes-workspace.env`
 
 Verify systemd units point to the correct paths:
 ```bash

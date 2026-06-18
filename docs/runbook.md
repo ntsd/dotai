@@ -26,7 +26,6 @@ make systemd-start
 
 # Individual service restart
 sudo systemctl restart hermes-gateway
-sudo systemctl restart hermes-workspace
 sudo systemctl restart hermes-dashboard
 ```
 

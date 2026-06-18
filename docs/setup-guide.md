@@ -8,8 +8,6 @@ Generate systemd services from templates:
 cd systemd
 env USER="$USER" HOME="$HOME" envsubst < "$(pwd)/hermes-gateway.service.template" > "$(pwd)/hermes-gateway.service"
 env USER="$USER" HOME="$HOME" envsubst < "$(pwd)/hermes-dashboard.service.template" > "$(pwd)/hermes-dashboard.service"
-env USER="$USER" HOME="$HOME" envsubst < "$(pwd)/hermes-workspace.service.template" > "$(pwd)/hermes-workspace.service"
-env USER="$USER" HOME="$HOME" envsubst < "$(pwd)/hermes-webui.service.template" > "$(pwd)/hermes-webui.service"
 ```
 
 Link and enable:
@@ -80,8 +78,6 @@ make systemd-status
 Expected output:
 - `hermes-gateway` — API server on port 8642
 - `hermes-dashboard` — Dashboard on port 9119
-- `hermes-workspace` — Workspace on port 3000
-- `hermes-webui` — Native web UI on port 8787
 
 ## Service Management
 
