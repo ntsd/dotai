@@ -23,7 +23,7 @@ sudo ln -sf "$(pwd)/hermes-dashboard.service" /etc/systemd/system/hermes-dashboa
 3. Create env file for additional environments
 
 ```sh
-touch ~/hermes-gateway.env
+touch ~/hermes.env
 ```
 
 then put the requires env there for each service.
@@ -32,7 +32,7 @@ Tip: you can also set `PATH` inside the env to allow access the binary files or 
 
 All services now load `~/.bashrc` in `ExecStart` before running their command.
 
-Example hermes-gateway.env
+Example hermes.env
 
 ```sh
 API_SERVER_ENABLED=true

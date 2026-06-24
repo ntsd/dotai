@@ -14,7 +14,7 @@ sudo journalctl -u hermes-gateway -f
 ```
 
 **Fix:** Ensure the env files exist and have correct paths:
-- `~/hermes-gateway.env`
+- `~/hermes.env`
 
 Verify systemd units point to the correct paths:
 ```bash
@@ -34,9 +34,60 @@ make systemd-enable
 Services source `.bashrc`. If custom binaries are needed:
 
 ```bash
-# In hermes-gateway.env or .bashrc
+# In hermes.env or .bashrc
 export PATH="$PATH:/path/to/bin"
 ```
+
+### Hermes Dashboard refuses to bind to 0.0.0.0
+
+If you see this error in the dashboard logs:
+```
+Refusing to bind dashboard to 0.0.0.0 — the auth gate engages on non-loopback binds, but no auth providers are registered.
+```
+
+**Fix:** When exposing the dashboard on a public interface (`0.0.0.0`), it requires an authentication provider to be configured. You can set up basic auth in `~/hermes.env`:
+
+1. Generate a password hash for your chosen password:
+```bash
+/home/ntsd/.hermes/hermes-agent/venv/bin/python3 -c "from plugins.dashboard_auth.basic import hash_password; print(hash_password('your-password'))"
+```
+
+2. Add the username and generated password hash to `~/hermes.env`:
+```bash
+HERMES_DASHBOARD_BASIC_AUTH_USERNAME=admin
+HERMES_DASHBOARD_BASIC_AUTH_PASSWORD_HASH="your-generated-hash"
+```
+
+3. Restart the dashboard service:
+```bash
+sudo systemctl restart hermes-dashboard
+```
+
+### Hermes Gateway refuses to start (API_SERVER_KEY)
+
+If you see an error like this in the gateway logs:
+```
+[Api_Server] Refusing to start: API_SERVER_KEY is a placeholder or too short (<16 chars) for a network-accessible bind.
+```
+
+**Fix:** When the Hermes gateway API server is exposed on a public interface (`API_SERVER_HOST=0.0.0.0`), it requires a strong secret key to prevent unauthorized remote code execution. You also need to explicitly allow users.
+
+1. Generate a strong secret key:
+```bash
+openssl rand -hex 32
+```
+
+2. Add the generated key and the allow flag to `~/hermes.env`:
+```bash
+API_SERVER_KEY="your-generated-key"
+GATEWAY_ALLOW_ALL_USERS=true
+```
+
+3. Restart the gateway service:
+```bash
+sudo systemctl restart hermes-gateway
+```
+
 
 ## GPU Issues (vLLM)
 
