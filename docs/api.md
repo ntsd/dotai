@@ -17,7 +17,6 @@ make systemd-start
 
 | Service | File | Description |
 |---------|------|-------------|
-| hermes-gateway | `systemd/hermes-gateway.service` | API server (port 8642) |
 | hermes-dashboard | `systemd/hermes-dashboard.service` | Web UI (port 9119) |
 
 | Systemd units | `systemd/*.service` |

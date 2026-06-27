@@ -6,11 +6,10 @@
 
 ```bash
 # Check status
-sudo systemctl status hermes-gateway
 sudo systemctl status hermes-dashboard
 
 # Check logs
-sudo journalctl -u hermes-gateway -f
+sudo journalctl -u hermes-dashboard -f
 ```
 
 **Fix:** Ensure the env files exist and have correct paths:
@@ -18,7 +17,7 @@ sudo journalctl -u hermes-gateway -f
 
 Verify systemd units point to the correct paths:
 ```bash
-cat /etc/systemd/system/hermes-gateway.service | grep ExecStart
+cat /etc/systemd/system/hermes-dashboard.service | grep ExecStart
 ```
 
 ### Service won't start after reboot
@@ -63,30 +62,6 @@ HERMES_DASHBOARD_BASIC_AUTH_PASSWORD_HASH="your-generated-hash"
 sudo systemctl restart hermes-dashboard
 ```
 
-### Hermes Gateway refuses to start (API_SERVER_KEY)
-
-If you see an error like this in the gateway logs:
-```
-[Api_Server] Refusing to start: API_SERVER_KEY is a placeholder or too short (<16 chars) for a network-accessible bind.
-```
-
-**Fix:** When the Hermes gateway API server is exposed on a public interface (`API_SERVER_HOST=0.0.0.0`), it requires a strong secret key to prevent unauthorized remote code execution. You also need to explicitly allow users.
-
-1. Generate a strong secret key:
-```bash
-openssl rand -hex 32
-```
-
-2. Add the generated key and the allow flag to `~/hermes.env`:
-```bash
-API_SERVER_KEY="your-generated-key"
-GATEWAY_ALLOW_ALL_USERS=true
-```
-
-3. Restart the gateway service:
-```bash
-sudo systemctl restart hermes-gateway
-```
 
 
 ## GPU Issues (vLLM)

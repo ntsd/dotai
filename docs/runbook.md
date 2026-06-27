@@ -25,7 +25,6 @@ make systemd-stop
 make systemd-start
 
 # Individual service restart
-sudo systemctl restart hermes-gateway
 sudo systemctl restart hermes-dashboard
 ```
 
@@ -35,14 +34,14 @@ sudo systemctl restart hermes-dashboard
 
 ```bash
 # 1. Check if systemd is running
-systemctl is-active hermes-gateway
+systemctl is-active hermes-dashboard
 
 # 2. If not, regenerate and restart
 make systemd-link
 make systemd-start
 
 # 3. Check logs for root cause
-sudo journalctl -u hermes-gateway -n 200 --no-pager
+sudo journalctl -u hermes-dashboard -n 200 --no-pager
 ```
 
 ### Config Corruption Recovery

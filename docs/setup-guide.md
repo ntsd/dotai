@@ -6,7 +6,6 @@ Generate systemd services from templates:
 
 ```bash
 cd systemd
-env USER="$USER" HOME="$HOME" envsubst < "$(pwd)/hermes-gateway.service.template" > "$(pwd)/hermes-gateway.service"
 env USER="$USER" HOME="$HOME" envsubst < "$(pwd)/hermes-dashboard.service.template" > "$(pwd)/hermes-dashboard.service"
 ```
 
@@ -76,7 +75,6 @@ make systemd-status
 ```
 
 Expected output:
-- `hermes-gateway` — API server on port 8642
 - `hermes-dashboard` — Dashboard on port 9119
 
 ## Service Management
@@ -86,8 +84,7 @@ Expected output:
 make systemd-stop
 make systemd-start
 
-# Individual service
-sudo systemctl restart hermes-gateway
+sudo systemctl restart hermes-dashboard
 
 # View logs
 make systemd-logs
