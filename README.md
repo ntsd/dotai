@@ -22,10 +22,10 @@
 
 GPU-based LLM inference runs via Docker Compose in `vllm/`:
 
-| Setup | Model | GPU | Details |
-|-------|-------|-----|---------|
-| `vllm/qwen3.6-35b-a3b/` | Qwen3.6-35B-A3B | DGX Spark (NVFP4 + DFlash) | Speculative decoding with AEON-7 |
-| `vllm/qwen3.6-27b/` | Qwen3.6-27B v4 | DGX Spark (GB10) | Multimodal with DFlash |
+| Setup | Model | GPU | Details | GitHub |
+|-------|-------|-----|---------|------------|
+| `vllm/qwen3.6-35b-a3b/` | Qwen3.6-35B-A3B | DGX Spark (NVFP4 + DFlash) | Speculative decoding with AEON-7 | https://github.com/AEON-7/Qwen3.6-35B-A3B-heretic-NVFP4-DFlash
+| `vllm/qwen3.6-27b/` | Qwen3.6-27B v4 | DGX Spark (GB10) | Multimodal with DFlash | https://github.com/AEON-7/Qwen3.6-27B-AEON-Ultimate-Uncensored-DFlash
 
 Both expose the OpenAI-compatible API at `http://localhost:8000/v1`.
 

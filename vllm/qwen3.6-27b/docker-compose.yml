@@ -11,7 +11,7 @@
 #
 # Required downloads (run once):
 #   hf auth login
-#   hf download AEON-7/Qwen3.6-27B-AEON-Ultimate-Uncensored-NVFP4 --local-dir ./models/aeon-ultimate-nvfp4
+#   hf download AEON-7/Qwen3.6-27B-AEON-Ultimate-Uncensored-Multimodal-NVFP4-MTP-XS --local-dir ./models/aeon-ultimate-multimodal-nvfp4-mtp-xs
 #   hf download z-lab/Qwen3.6-27B-DFlash --local-dir ./models/dflash-drafter
 #
 # Start:
@@ -21,7 +21,7 @@
 services:
   vllm:
     # ─── v4 DFlash Image ───
-    image: ghcr.io/aeon-7/vllm-aeon-ultimate-dflash:qwen36-v4
+    image: ghcr.io/aeon-7/aeon-vllm-ultimate:latest
     container_name: aeon-ultimate-xs
     restart: unless-stopped
     network_mode: host
@@ -52,30 +52,40 @@ services:
       - VLLM_NVFP4_GEMM_BACKEND=flashinfer-cutlass
 
     volumes:
-      # ─── Model Checkpoints ───
-      # Note: Ensure you have pulled the `modelopt` format XS checkpoint for v4.
+      # XS multimodal body (modelopt format, ~21 GB) — replaces the regular NVFP4 body
       - ./models/aeon-ultimate-multimodal-nvfp4-mtp-xs:/models/xs
+      # DFlash drafter (~3.46 GB)
       - ./models/dflash-drafter:/models/dflash-drafter
 
+    # The aeon-vllm-ultimate:latest image ENTRYPOINT is exec-form ["/bin/bash"]. Because
+    # Docker CONCATENATES entrypoint + command, you must NOT also start `command:` with
+    # `bash`: `command: [bash, -c, ...]` resolves to `/bin/bash bash -c ...`, where bash
+    # treats the second `bash` as a script file and dies with
+    # `/usr/bin/bash: /usr/bin/bash: cannot execute binary file` — even on a correct
+    # aarch64 DGX Spark (this is NOT an arch mismatch; see issue #12). Fix: override the
+    # entrypoint to `bash -lc` and pass ONLY the serve script as the command.
+    # (Plain `docker run`: `--entrypoint /bin/bash <img> -lc "exec vllm serve ..."`,
+    #  or `--entrypoint vllm <img> serve ...`.)
+    entrypoint: ["/bin/bash", "-lc"]
     command:
-      - bash
-      - -c
       - |
         exec vllm serve /models/xs \
           --served-model-name aeon-ultimate qwen36-ultimate aeon-fast aeon-deep aeon-ultimate-xs \
           --host 0.0.0.0 --port 8000 \
           --tensor-parallel-size 1 \
           --dtype auto \
-          --load-format safetensors \
-          --trust-remote-code \
           --quantization modelopt \
           --kv-cache-dtype auto \
+          --mamba-cache-dtype float32 \
           --max-model-len 256000 \
-          --max-num-seqs 8 \
-          --max-num-batched-tokens 32768 \
+          --max-num-seqs 64 \
+          --max-num-batched-tokens 16384 \
+          --gpu-memory-utilization 0.70 \
           --enable-chunked-prefill \
-          --gpu-memory-utilization 0.85 \
           --enable-prefix-caching \
+          --generation-config vllm \
+          --load-format safetensors \
+          --trust-remote-code \
           --enable-auto-tool-choice \
           --tool-call-parser qwen3_coder \
           --reasoning-parser qwen3 \
@@ -84,31 +94,37 @@ services:
           --mm-encoder-tp-mode data \
           --mm-processor-cache-type shm \
           --mm-shm-cache-max-object-size-mb 256 \
-          --speculative-config '{"method":"dflash","model":"/models/dflash-drafter","num_speculative_tokens":15}'
+          --speculative-config '{"method":"dflash","model":"/models/dflash-drafter","num_speculative_tokens":10}'
+        # Notes on configuration choices:
+        #   - --quantization modelopt — required for the XS body. The XS body ships in
+        #     modelopt format (NVFP4 element + FP8 per-block + FP32 per-tensor scales).
+        #     The previous regular NVFP4 body was compressed-tensors format; modelopt is
+        #     the format vLLM serves through this code path.
+        #   - --speculative-config '{"method":"dflash",...,"num_speculative_tokens":10}'
+        #     — DFlash with the external z-lab drafter. n=10 is the validated default:
+        #     the n=8/10/12/15 sweep found n=10 best for the voice/chat workload (top
+        #     aggregate throughput + acceptance at parity single-stream); the old 12-token
+        #     setting wins only at very long context. The drafter backend is the DEFAULT
+        #     (do NOT add "attention_backend" to the spec-config — the default works for
+        #     Qwen3.6 on this image, unlike Gemma which needed flash_attn). The XS body has
+        #     a grafted MTP head in its safetensors but it is *not* used here; don't switch
+        #     this to method:"qwen3_5_mtp" unless you are deliberately running an ablation.
+        #   - --kv-cache-dtype auto keeps the KV cache at BF16, which the non-causal DFlash
+        #     drafter requires. Do NOT pin --kv-cache-dtype to FP8/NVFP4 with DFlash.
+        #   - --gpu-memory-utilization 0.70 is the SAFE DEFAULT — the Spark's unified
+        #     memory thrashes when over-allocated (slowdowns, agent loops, even engine
+        #     crashes, NOT a clean OOM). 0.70 leaves headroom for co-located ASR/TTS/
+        #     embedding services + the OS. Raise to 0.85 ONLY if the LLM is the sole
+        #     major GPU workload (and watch `free -h`); 0.88+ thrashes unified memory.
+        #     (RTX PRO 6000 has dedicated VRAM and more headroom — it caps at 0.94.)
+        #   - --max-num-batched-tokens 16384 is the ceiling. vLLM's inductor compile-range
+        #     endpoint is [32768], so above 32k prefill falls back to eager mode.
 
-        # Notes on command configuration:
-        #   - Quantization: `modelopt` is required for the recommended v4 XS body
-        #     to preserve SSM kernel stability.
-        #   - Memory/concurrency safety ceilings:
-        #     * `max-model-len 256000` is a hard context cap.
-        #     * `max-num-seqs 8` is a hard parallel-request cap for DFlash stability.
-        #     * `max-num-batched-tokens 32768` is the chunked-prefill safety valve.
-        #     * `gpu-memory-utilization 0.85` keeps usage within DGX Spark limits.
-        #   - Agentic optimization: prefix caching is enabled to avoid recomputing
-        #     identical system prompts/tool definitions.
-        #   - Architecture/multimodal: `mm-shm-cache-max-object-size-mb 256`
-        #     prevents large image/video objects from overflowing shared memory.
-        #   - Speculative decoding: DFlash is enabled at `k=15` with the
-        #     architecture-matched drafter.
-    
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      # Gives FlashInfer NVFP4 GEMM autotuner time to cache on first boot
-      start_period: 600s
-
+    # GPU exposure — required on hosts where Docker's default-runtime is not 'nvidia'.
+    # The DGX Spark base image ships with `default-runtime: nvidia` so this block is a
+    # no-op there, but on most other Linux hosts (default-runtime: runc) the container
+    # cannot see the GPU without it. Reported in issue #5; canonical Docker Compose v3
+    # spec for GPU reservation.
     deploy:
       resources:
         reservations:
@@ -116,3 +132,4 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+              
