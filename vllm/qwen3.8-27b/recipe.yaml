@@ -1,39 +1,47 @@
-description: vLLM serving nvidia/Qwen3.6-35B-A3B-NVFP4
-model: nvidia/Qwen3.6-35B-A3B-NVFP4
-container: vllm-node
-mods:
-  - mods/fix-qwen3.6-chat-template
+description: 'PRODUCTION (interactive/agentic/code) Qwen3.8-27B on the UNSLOTH NVFP4 checkpoint (4-bit lm_head) with DFlash2 k=8 speculative decoding, one DGX Spark, vLLM mainline after PR #52816 merged (b389ac2). Supersedes prod-v3 (Inferact/BF16 lm_head): the PR merge removed the unquantized-target-lm_head guard, so a quantized-lm_head target is now allowed, and on the same benchmark harness unsloth beats Inferact by 20-32% on every workload (code 53.92 vs 40.79 tok/s). Full 262144-token context. Self-contained: no lm_head mod, no unmerged-PR injection. VL checkpoint served text-only (mm limits zeroed). KV on auto. gpu_memory_utilization 0.60 for UMA headroom. Validated on-box 2026-08-22: clean profile_run, /health 200, DFlash2 active, quality + tool-call + 14K-context battery all PASS.'
+model: unsloth/Qwen3.8-27B-NVFP4
+container: vllm-node-dflash2
+build_args:
+  - '--vllm-ref'
+  - b389ac29465b33f9e9c534df221ea3c129e9793f
 defaults:
   port: 8000
   host: 0.0.0.0
   tensor_parallel: 1
-  gpu_memory_utilization: 0.65
+  gpu_memory_utilization: 0.6
   max_model_len: 262144
-  max_num_batched_tokens: 32768
+  max_num_batched_tokens: 16384
   max_num_seqs: 4
+  served_model_name: qwen38-27b-unsloth-nvfp4-dflash2
+  num_speculative_tokens: 8
 env:
-  VLLM_MARLIN_USE_ATOMIC_ADD: '1'
+  MAX_JOBS: '4'
+  NVCC_THREADS: '2'
+  FLASHINFER_NVCC_THREADS: '2'
+  CUTE_DSL_ARCH: sm_121a
+  VLLM_HTTP_TIMEOUT_KEEP_ALIVE: '600'
+  FLASHINFER_DISABLE_VERSION_CHECK: '1'
 command: |
-  vllm serve nvidia/Qwen3.6-35B-A3B-NVFP4 \
+  vllm serve unsloth/Qwen3.8-27B-NVFP4 \
     --host {host} \
     --port {port} \
+    --served-model-name {served_model_name} \
     --tensor-parallel-size {tensor_parallel} \
     --trust-remote-code \
-    --kv-cache-dtype fp8 \
-    --attention-backend flashinfer \
-    --moe-backend marlin \
     --gpu-memory-utilization {gpu_memory_utilization} \
     --max-model-len {max_model_len} \
     --max-num-seqs {max_num_seqs} \
     --max-num-batched-tokens {max_num_batched_tokens} \
     --enable-chunked-prefill \
-    --async-scheduling \
-    --enable-prefix-caching \
-    --speculative-config '{{"method":"mtp","num_speculative_tokens":3,"moe_backend":"triton"}}' \
-    --load-format fastsafetensors \
+    --skip-mm-profiling \
+    --limit-mm-per-prompt '{{"image":0,"video":0}}' \
     --reasoning-parser qwen3 \
-    --tool-call-parser qwen3_xml \
-    --enable-auto-tool-choice
-recipe_version: '1'
-name: Qwen36-35B-A3B-NVFP4-nvidia
+    --tool-call-parser qwen3_coder \
+    --enable-auto-tool-choice \
+    --generation-config auto \
+    --speculative-config '{{"method":"dflash","model":"z-lab/Qwen3.8-27B-DFlash2","num_speculative_tokens":{num_speculative_tokens}}}' \
+    --default-chat-template-kwargs '{{"enable_thinking":true,"reasoning_effort":"medium"}}'
+recipe_version: '2'
+name: Qwen3.8-27B-NVFP4-DFlash2-unsloth-NVIDIA-DGX-Spark-prod-v4
 cluster_only: false
+solo_only: false
