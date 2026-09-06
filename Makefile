@@ -93,8 +93,6 @@ nginx-link-hermes:
 	@sudo systemctl reload nginx
 	@echo "Hermes dashboard nginx reloaded successfully"
 
-nginx-link-hermes-dashboard: nginx-link-hermes
-
 nginx-link-vllm:
 	@sudo mkdir -p $(NGINX_SITES_ENABLED)
 	@echo "Linking vllm.spark.ntsd.dev to $(NGINX_SITES_ENABLED)/"

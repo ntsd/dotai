@@ -1,5 +1,5 @@
 server {
-    listen 8000 ssl http2;
+    listen 8001 ssl http2;
     # edit this to your domain
     server_name spark.ntsd.dev;
 
