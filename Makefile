@@ -2,8 +2,10 @@ SHELL := /bin/bash
 
 SYSTEMD_SERVICES := hermes-dashboard
 SYSTEMD_DIR := $(CURDIR)/systemd
+NGINX_DIR := $(CURDIR)/nginx
+NGINX_SITES_ENABLED := /etc/nginx/sites-enabled
 
-.PHONY: systemd-generate systemd-link systemd-enable systemd-disable systemd-start systemd-stop systemd-status systemd-logs systemd-refresh
+.PHONY: systemd-generate systemd-link systemd-enable systemd-disable systemd-start systemd-stop systemd-status systemd-logs systemd-refresh nginx-link nginx-test nginx-reload
 
 systemd-generate:
 	@command -v envsubst >/dev/null 2>&1 || (echo "Error: envsubst not found. Install gettext package." && exit 1)
@@ -70,3 +72,24 @@ systemd-refresh:
 	@$(MAKE) systemd-enable
 	@$(MAKE) systemd-start
 	@echo "Refreshed and restarted: $(SYSTEMD_SERVICES)"
+
+nginx-link:
+	@sudo mkdir -p $(NGINX_SITES_ENABLED)
+	@for conf in $(NGINX_DIR)/*; do \
+		[ -f "$$conf" ] || continue; \
+		echo "Linking $$(basename "$$conf") to $(NGINX_SITES_ENABLED)/"; \
+		sudo ln -sf "$$conf" $(NGINX_SITES_ENABLED)/; \
+	done
+	@echo "Linked nginx config files from $(NGINX_DIR)"
+	@sudo nginx -t
+	@sudo systemctl reload nginx
+	@echo "Nginx reloaded successfully"
+
+nginx-test:
+	@sudo nginx -t
+
+nginx-reload:
+	@sudo nginx -t
+	@sudo systemctl reload nginx
+	@echo "Nginx reloaded successfully"
+

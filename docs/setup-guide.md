@@ -23,9 +23,9 @@ make systemd-link    # Generate + link services
 make systemd-enable  # Enable all services
 ```
 
-## vLLM Inference (Docker Compose)
+## vLLM Inference (Docker Compose / sparkrun)
 
-GPU-based LLM inference runs via Docker Compose. Choose one of the pre-configured setups:
+GPU-based LLM inference runs via Docker Compose or sparkrun. Choose one of the pre-configured setups:
 
 ### Option A: Qwen3.6-35B-A3B (NVFP4 + DFlash)
 
@@ -36,18 +36,24 @@ docker compose up -d
 
 This uses the AEON-7 NVFP4 quantized model with DFlash speculative decoding on DGX Spark.
 
-### Option B: Qwen3.6-27B v4
+### Option B: Qwen3.8-27B (sparkrun)
 
 ```bash
-cd vllm/qwen3.6-27b
-docker compose up -d
+# Run solo on single DGX Spark node
+sparkrun run vllm/qwen3.8-27b/recipe.yaml --solo
+
+# Or specify cluster/host
+sparkrun run vllm/qwen3.8-27b/recipe.yaml --hosts <spark-ip>
+
+# View logs
+sparkrun logs Qwen3.8-27B-NVFP4-DFlash2-unsloth-NVIDIA-DGX-Spark-prod-v4
 ```
 
-This uses the Qwen3.6-27B v4 multimodal model with DFlash on DGX Spark (GB10 architecture).
+This uses the `unsloth/Qwen3.8-27B-NVFP4` checkpoint with `z-lab/Qwen3.8-27B-DFlash2` (k=8 speculative decoding) and serves model `qwen38-27b-unsloth-nvfp4-dflash2`.
 
 ### Verify Inference
 
-Both setups expose the OpenAI-compatible API at `http://localhost:8000/v1`:
+All setups expose the OpenAI-compatible API at `http://localhost:8000/v1`:
 
 ```bash
 curl http://localhost:8000/v1/models | jq '.data[0].id'
