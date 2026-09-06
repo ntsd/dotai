@@ -4,6 +4,8 @@
 
 ```text
 ├── nginx/                # Nginx reverse proxy configurations
+│   ├── hermes-dashboard.pi.ntsd.dev # Hermes dashboard reverse proxy
+│   └── vllm.spark.ntsd.dev          # vLLM API reverse proxy
 ├── systemd/              # Systemd service files for 24/7 operation
 │   ├── README.md         # Systemd setup guide
 │   ├── *.service.template # Service unit templates
@@ -69,7 +71,9 @@ docker compose up -d
 
 | Command | Description |
 |---------|-------------|
-| `make nginx-link` | Link nginx configs to `/etc/nginx/sites-enabled/`, test and reload nginx |
+| `make nginx-link` | Link all nginx configs to `/etc/nginx/sites-enabled/`, test and reload nginx |
+| `make nginx-link-hermes` | Link Hermes dashboard nginx config, test and reload |
+| `make nginx-link-vllm` | Link vLLM nginx config, test and reload |
 | `make nginx-test` | Test nginx configuration (`nginx -t`) |
 | `make nginx-reload` | Test and reload nginx service |
 | `make systemd-link` | Link systemd services to `/etc/systemd/system/` |

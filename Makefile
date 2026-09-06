@@ -5,7 +5,7 @@ SYSTEMD_DIR := $(CURDIR)/systemd
 NGINX_DIR := $(CURDIR)/nginx
 NGINX_SITES_ENABLED := /etc/nginx/sites-enabled
 
-.PHONY: systemd-generate systemd-link systemd-enable systemd-disable systemd-start systemd-stop systemd-status systemd-logs systemd-refresh nginx-link nginx-test nginx-reload
+.PHONY: systemd-generate systemd-link systemd-enable systemd-disable systemd-start systemd-stop systemd-status systemd-logs systemd-refresh nginx-link nginx-link-hermes nginx-link-vllm nginx-test nginx-reload
 
 systemd-generate:
 	@command -v envsubst >/dev/null 2>&1 || (echo "Error: envsubst not found. Install gettext package." && exit 1)
@@ -84,6 +84,24 @@ nginx-link:
 	@sudo nginx -t
 	@sudo systemctl reload nginx
 	@echo "Nginx reloaded successfully"
+
+nginx-link-hermes:
+	@sudo mkdir -p $(NGINX_SITES_ENABLED)
+	@echo "Linking hermes-dashboard.pi.ntsd.dev to $(NGINX_SITES_ENABLED)/"
+	@sudo ln -sf "$(NGINX_DIR)/hermes-dashboard.pi.ntsd.dev" $(NGINX_SITES_ENABLED)/
+	@sudo nginx -t
+	@sudo systemctl reload nginx
+	@echo "Hermes dashboard nginx reloaded successfully"
+
+nginx-link-hermes-dashboard: nginx-link-hermes
+
+nginx-link-vllm:
+	@sudo mkdir -p $(NGINX_SITES_ENABLED)
+	@echo "Linking vllm.spark.ntsd.dev to $(NGINX_SITES_ENABLED)/"
+	@sudo ln -sf "$(NGINX_DIR)/vllm.spark.ntsd.dev" $(NGINX_SITES_ENABLED)/
+	@sudo nginx -t
+	@sudo systemctl reload nginx
+	@echo "vLLM nginx reloaded successfully"
 
 nginx-test:
 	@sudo nginx -t
