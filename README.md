@@ -33,6 +33,12 @@ All setups expose an OpenAI-compatible API at `http://localhost:8000/v1`.
 
 ### Running Qwen3.8 with sparkrun
 
+Install `sparkrun` first if not already installed:
+
+```bash
+uvx sparkrun setup
+```
+
 Deploy the recipe using `sparkrun` on DGX Spark:
 
 ```bash

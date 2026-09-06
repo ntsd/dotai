@@ -38,6 +38,14 @@ This uses the AEON-7 NVFP4 quantized model with DFlash speculative decoding on D
 
 ### Option B: Qwen3.8-27B (sparkrun)
 
+Install `sparkrun` first if not already installed:
+
+```bash
+uvx sparkrun setup
+```
+
+Run the recipe:
+
 ```bash
 # Run solo on single DGX Spark node
 sparkrun run vllm/qwen3.8-27b/recipe.yaml --solo
