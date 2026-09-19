@@ -50,6 +50,9 @@ Run the recipe:
 # Run solo on single DGX Spark node
 sparkrun run vllm/qwen3.8-27b/recipe.yaml --solo
 
+# Auto restart when the OS restarts (or: make sparkrun-run)
+sparkrun run vllm/qwen3.8-27b/recipe.yaml --solo --restart unless-stopped
+
 # Or specify cluster/host
 sparkrun run vllm/qwen3.8-27b/recipe.yaml --hosts <spark-ip>
 

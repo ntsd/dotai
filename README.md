@@ -47,16 +47,19 @@ Deploy the recipe using `sparkrun` on DGX Spark:
 # Run in solo mode (single-node DGX Spark)
 sparkrun run vllm/qwen3.8-27b/recipe.yaml --solo
 
+# Auto restart when the OS restarts (or via make: make sparkrun-run)
+sparkrun run vllm/qwen3.8-27b/recipe.yaml --solo --restart unless-stopped
+
 # Or target a specific cluster/host
 sparkrun run vllm/qwen3.8-27b/recipe.yaml --hosts <spark-ip>
 
-# View running logs
+# View running logs (or: make sparkrun-logs)
 sparkrun logs Qwen3.8-27B-NVFP4-DFlash2-unsloth-NVIDIA-DGX-Spark-prod-v4
 
-# Check status
+# Check status (or: make sparkrun-status)
 sparkrun status
 
-# Stop the workload
+# Stop the workload (or: make sparkrun-stop)
 sparkrun stop Qwen3.8-27B-NVFP4-DFlash2-unsloth-NVIDIA-DGX-Spark-prod-v4
 ```
 
@@ -71,6 +74,10 @@ docker compose up -d
 
 | Command | Description |
 |---------|-------------|
+| `make sparkrun-run` | Run Qwen3.8-27B recipe with sparkrun (`--solo`, `--restart unless-stopped`) |
+| `make sparkrun-stop` | Stop Qwen3.8-27B sparkrun workload |
+| `make sparkrun-status` | Show sparkrun workload status |
+| `make sparkrun-logs` | View Qwen3.8-27B sparkrun logs |
 | `make nginx-link` | Link all nginx configs to `/etc/nginx/sites-enabled/`, test and reload nginx |
 | `make nginx-link-hermes` | Link Hermes dashboard nginx config, test and reload |
 | `make nginx-link-vllm` | Link vLLM nginx config, test and reload |

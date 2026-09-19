@@ -4,8 +4,10 @@ SYSTEMD_SERVICES := hermes-dashboard
 SYSTEMD_DIR := $(CURDIR)/systemd
 NGINX_DIR := $(CURDIR)/nginx
 NGINX_SITES_ENABLED := /etc/nginx/sites-enabled
+SPARKRUN_RECIPE := vllm/qwen3.8-27b/recipe.yaml
+SPARKRUN_WORKLOAD := Qwen3.8-27B-NVFP4-DFlash2-unsloth-NVIDIA-DGX-Spark-prod-v4
 
-.PHONY: systemd-generate systemd-link systemd-enable systemd-disable systemd-start systemd-stop systemd-status systemd-logs systemd-refresh nginx-link nginx-link-hermes nginx-link-vllm nginx-test nginx-reload
+.PHONY: systemd-generate systemd-link systemd-enable systemd-disable systemd-start systemd-stop systemd-status systemd-logs systemd-refresh nginx-link nginx-link-hermes nginx-link-vllm nginx-test nginx-reload sparkrun-run sparkrun-start sparkrun-stop sparkrun-status sparkrun-logs
 
 systemd-generate:
 	@command -v envsubst >/dev/null 2>&1 || (echo "Error: envsubst not found. Install gettext package." && exit 1)
@@ -108,4 +110,18 @@ nginx-reload:
 	@sudo nginx -t
 	@sudo systemctl reload nginx
 	@echo "Nginx reloaded successfully"
+
+sparkrun-run:
+	sparkrun run $(SPARKRUN_RECIPE) --solo --restart unless-stopped
+
+sparkrun-start: sparkrun-run
+
+sparkrun-stop:
+	sparkrun stop $(SPARKRUN_WORKLOAD)
+
+sparkrun-status:
+	sparkrun status
+
+sparkrun-logs:
+	sparkrun logs $(SPARKRUN_WORKLOAD)
 
