@@ -19,7 +19,7 @@ systemd-link: systemd-generate
 	@sudo systemctl daemon-reload
 	@echo "Linked systemd unit files from $(SYSTEMD_DIR)"
 
-systemd-enable:
+systemd-enable: systemd-link
 	@sudo systemctl daemon-reload
 	@for svc in $(SYSTEMD_SERVICES); do \
 		echo "Enabling $$svc"; \
@@ -34,7 +34,7 @@ systemd-disable:
 	done
 	@echo "Disabled: $(SYSTEMD_SERVICES)"
 
-systemd-start:
+systemd-start: systemd-enable systemd-link
 	@sudo systemctl daemon-reload
 	@for svc in $(SYSTEMD_SERVICES); do \
 		echo "Starting $$svc"; \
