@@ -1,0 +1,23 @@
+[Unit]
+Description=AgentsView
+After=network.target
+
+[Service]
+Type=simple
+User=${USER}
+Group=${USER}
+WorkingDirectory=${HOME}
+
+Environment="PATH=${HOME}/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+EnvironmentFile=-${HOME}/agentsview.env
+
+ExecStart=/bin/bash -lc 'source "${HOME}/.bashrc" 2>/dev/null || true; if ! command -v agentsview >/dev/null 2>&1; then echo "agentsview not found after loading .bashrc" >&2; exit 127; fi; exec agentsview serve --host 127.0.0.1 --port 8080 --no-browser --public-origin https://pi.ntsd.dev:10002,https://pi.ntsd.dev:1002,https://pi.ntsd.dev'
+TimeoutStopSec=30s
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+
+[Install]
+WantedBy=multi-user.target

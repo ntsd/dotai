@@ -1,21 +1,31 @@
 SHELL := /bin/bash
 
-SYSTEMD_SERVICES := hermes-dashboard
+SYSTEMD_SERVICES := hermes-dashboard agentsview
 SYSTEMD_DIR := $(CURDIR)/systemd
 NGINX_DIR := $(CURDIR)/nginx
 NGINX_SITES_ENABLED := /etc/nginx/sites-enabled
 SPARKRUN_RECIPE := vllm/qwen3.8-27b/recipe.yaml
 SPARKRUN_WORKLOAD := Qwen3.8-27B-NVFP4-DFlash2-unsloth-NVIDIA-DGX-Spark-prod-v4
 
-.PHONY: systemd-generate systemd-link systemd-enable systemd-disable systemd-start systemd-stop systemd-status systemd-logs systemd-refresh nginx-link nginx-link-hermes nginx-link-vllm nginx-test nginx-reload sparkrun-run sparkrun-start sparkrun-stop sparkrun-status sparkrun-logs
+.PHONY: systemd-generate systemd-link systemd-enable systemd-disable systemd-start systemd-stop systemd-status systemd-logs systemd-refresh nginx-link nginx-link-hermes nginx-link-agentsview nginx-link-vllm nginx-test nginx-reload sparkrun-run sparkrun-start sparkrun-stop sparkrun-status sparkrun-logs
 
 systemd-generate:
 	@command -v envsubst >/dev/null 2>&1 || (echo "Error: envsubst not found. Install gettext package." && exit 1)
-	@env USER="$(USER)" HOME="$(HOME)" envsubst < "$(SYSTEMD_DIR)/hermes-dashboard.service.template" > "$(SYSTEMD_DIR)/hermes-dashboard.service"
+	@for svc in $(SYSTEMD_SERVICES); do \
+		if [ -f "$(SYSTEMD_DIR)/$$svc.service.template" ]; then \
+			echo "Generating $$svc.service"; \
+			env USER="$(USER)" HOME="$(HOME)" envsubst < "$(SYSTEMD_DIR)/$$svc.service.template" > "$(SYSTEMD_DIR)/$$svc.service"; \
+		fi; \
+	done
 	@echo "Generated systemd service files from templates"
 
 systemd-link: systemd-generate
-	@sudo ln -sf "$(SYSTEMD_DIR)/hermes-dashboard.service" /etc/systemd/system/hermes-dashboard.service
+	@for svc in $(SYSTEMD_SERVICES); do \
+		if [ -f "$(SYSTEMD_DIR)/$$svc.service" ]; then \
+			echo "Linking $$svc.service"; \
+			sudo ln -sf "$(SYSTEMD_DIR)/$$svc.service" /etc/systemd/system/$$svc.service; \
+		fi; \
+	done
 	@sudo systemctl daemon-reload
 	@echo "Linked systemd unit files from $(SYSTEMD_DIR)"
 
@@ -94,6 +104,15 @@ nginx-link-hermes:
 	@sudo nginx -t
 	@sudo systemctl reload nginx
 	@echo "Hermes dashboard nginx reloaded successfully"
+
+nginx-link-agentsview:
+	@sudo mkdir -p $(NGINX_SITES_ENABLED)
+	@echo "Linking agentsview.pi.ntsd.dev to $(NGINX_SITES_ENABLED)/"
+	@sudo ln -sf "$(NGINX_DIR)/agentsview.pi.ntsd.dev" $(NGINX_SITES_ENABLED)/
+	@sudo nginx -t
+	@sudo systemctl reload nginx
+	@echo "AgentsView nginx reloaded successfully"
+
 
 nginx-link-vllm:
 	@sudo mkdir -p $(NGINX_SITES_ENABLED)
