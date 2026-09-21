@@ -34,7 +34,7 @@ systemd-disable:
 	done
 	@echo "Disabled: $(SYSTEMD_SERVICES)"
 
-systemd-start: systemd-enable systemd-link
+systemd-start: systemd-enable
 	@sudo systemctl daemon-reload
 	@for svc in $(SYSTEMD_SERVICES); do \
 		echo "Starting $$svc"; \
