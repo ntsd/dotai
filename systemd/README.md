@@ -24,6 +24,47 @@ make systemd-status
 make systemd-logs
 ```
 
+### Managing Individual Services
+
+You can target specific services directly by name:
+
+```sh
+# Link an individual service
+make systemd-link-agentsview
+make systemd-link-hermes
+
+# Enable an individual service
+make systemd-enable-agentsview
+make systemd-enable-hermes
+
+# Start an individual service
+make systemd-start-agentsview
+make systemd-start-hermes
+
+# Stop an individual service
+make systemd-stop-agentsview
+make systemd-stop-hermes
+
+# Restart an individual service
+make systemd-restart-agentsview
+make systemd-restart-hermes
+
+# Check status or logs
+make systemd-status-agentsview
+make systemd-logs-agentsview
+
+# Refresh/reload service after changes
+make systemd-refresh-agentsview
+```
+
+Alternatively, pass `SVC=<service-name>`:
+
+```sh
+make systemd-enable SVC=agentsview
+make systemd-start SVC=agentsview
+```
+
+
 ## Manual Installation
 
 1. Generate local `.service` files from template
