@@ -5,6 +5,7 @@
 ```text
 ├── nginx/                # Nginx reverse proxy configurations
 │   ├── hermes-dashboard.pi.ntsd.dev # Hermes dashboard reverse proxy
+│   ├── agentsview.pi.ntsd.dev       # AgentsView sessions Web UI reverse proxy
 │   └── vllm.spark.ntsd.dev          # vLLM API reverse proxy
 ├── systemd/              # Systemd service files for 24/7 operation
 │   ├── README.md         # Systemd setup guide
@@ -21,6 +22,9 @@
 |----------|-------------|
 | [systemd/README.md](systemd/README.md) | Systemd service configuration |
 | [docs/setup-guide.md](docs/setup-guide.md) | DotAI infrastructure setup guide |
+| [docs/api.md](docs/api.md) | Infrastructure API reference |
+| [docs/runbook.md](docs/runbook.md) | Operations runbook (restarting, emergency procedures) |
+| [docs/troubleshooting.md](docs/troubleshooting.md) | Troubleshooting guides (systemd, vLLM/GPU) |
 
 ## vLLM Inference (Optional)
 
@@ -80,6 +84,7 @@ docker compose up -d
 | `make sparkrun-logs` | View Qwen3.8-27B sparkrun logs |
 | `make nginx-link` | Link all nginx configs to `/etc/nginx/sites-enabled/`, test and reload nginx |
 | `make nginx-link-hermes` | Link Hermes dashboard nginx config, test and reload |
+| `make nginx-link-agentsview` | Link AgentsView nginx config, test and reload |
 | `make nginx-link-vllm` | Link vLLM nginx config, test and reload |
 | `make nginx-test` | Test nginx configuration (`nginx -t`) |
 | `make nginx-reload` | Test and reload nginx service |

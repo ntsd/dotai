@@ -18,5 +18,6 @@ make systemd-start
 | Service | File | Description |
 |---------|------|-------------|
 | hermes-dashboard | `systemd/hermes-dashboard.service` | Web UI (port 9119) |
+| agentsview | `systemd/agentsview.service` | AgentsView AI sessions Web UI (port 8080) |
 
 | Systemd units | `systemd/*.service` |

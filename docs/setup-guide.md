@@ -7,6 +7,7 @@ Generate systemd services from templates:
 ```bash
 cd systemd
 env USER="$USER" HOME="$HOME" envsubst < "$(pwd)/hermes-dashboard.service.template" > "$(pwd)/hermes-dashboard.service"
+env USER="$USER" HOME="$HOME" envsubst < "$(pwd)/agentsview.service.template" > "$(pwd)/agentsview.service"
 ```
 
 Link and enable:
@@ -93,6 +94,7 @@ make systemd-status
 
 Expected output:
 - `hermes-dashboard` — Dashboard on port 9119
+- `agentsview` — AgentsView AI sessions Web UI on port 8080 (public origin https://pi.ntsd.dev:10002)
 
 ## Service Management
 

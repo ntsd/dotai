@@ -33,8 +33,9 @@ sudo systemctl restart hermes-dashboard
 ### Full Service Failure
 
 ```bash
-# 1. Check if systemd is running
+# 1. Check if services are running
 systemctl is-active hermes-dashboard
+systemctl is-active agentsview
 
 # 2. If not, regenerate and restart
 make systemd-link
@@ -51,7 +52,7 @@ sudo journalctl -u hermes-dashboard -n 200 --no-pager
 make systemd-stop
 
 # Re-link from clean source
-make hermes-link
+make systemd-generate
 make systemd-link
 
 # Start fresh
@@ -79,6 +80,8 @@ make systemd-status
 | Service | Port | Protocol | Purpose |
 |---------|------|----------|---------|
 | vLLM models | 8000 | HTTP/OpenAI | LLM inference API |
+| hermes-dashboard | 9119 | HTTP | Hermes Agent Dashboard (proxied via nginx `hermes-dashboard.pi.ntsd.dev`) |
+| agentsview | 8080 | HTTP/WebSocket | AgentsView AI sessions Web UI (proxied via nginx `agentsview.pi.ntsd.dev`) |
 
 ## Glossary
 

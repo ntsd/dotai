@@ -14,6 +14,7 @@ sudo journalctl -u hermes-dashboard -f
 
 **Fix:** Ensure the env files exist and have correct paths:
 - `~/hermes.env`
+- `~/agentsview.env`
 
 Verify systemd units point to the correct paths:
 ```bash
@@ -62,6 +63,31 @@ HERMES_DASHBOARD_BASIC_AUTH_PASSWORD_HASH="your-generated-hash"
 sudo systemctl restart hermes-dashboard
 ```
 
+### AgentsView not starting or unreachable
+
+```bash
+# Check status
+sudo systemctl status agentsview
+
+# Check logs
+sudo journalctl -u agentsview -f
+```
+
+**Fix:** Ensure the env file exists (it is optional but read if present):
+- `~/agentsview.env`
+
+The unit exits 127 when the `agentsview` binary is not found after sourcing `.bashrc`:
+```bash
+# Verify the binary resolves in a login shell
+/bin/bash -lc 'command -v agentsview'
+```
+
+Verify the systemd unit points to the correct path:
+```bash
+cat /etc/systemd/system/agentsview.service | grep ExecStart
+```
+
+The service binds to `127.0.0.1:8080` and is exposed via nginx (`agentsview.pi.ntsd.dev`, public origin https://pi.ntsd.dev:10002). If the UI is unreachable, check the nginx config is linked (`make nginx-link-agentsview`) and reload nginx.
 
 
 ## GPU Issues (vLLM)
