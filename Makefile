@@ -219,7 +219,7 @@ nginx-reload:
 	@echo "Nginx reloaded successfully"
 
 sparkrun-run:
-	sparkrun run $(SPARKRUN_RECIPE) --solo --restart unless-stopped
+	sparkrun run $(SPARKRUN_RECIPE) --tp 1 --no-follow --restart unless-stopped
 
 sparkrun-start: sparkrun-run
 
