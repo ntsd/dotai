@@ -13,7 +13,7 @@ defaults:
   tensor_parallel: 1
   gpu_memory_utilization: 0.8
   max_model_len: 262144
-  max_num_seqs: 48
+  max_num_seqs: 4
   attention_backend: flashinfer
   rope_factor: 4
   context_length: 1010000
