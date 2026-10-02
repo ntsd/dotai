@@ -13,7 +13,7 @@
 │   └── *.service          # Generated service units
 ├── sparkrun/             # LLM inference configs (sparkrun recipes)
 │   ├── qwen-3.8-27b-sglang/ # Qwen3.8-27B NVFP4 with SGLang + DFlash2
-│   └── qwen3.8-27b/         # Qwen3.8-27B NVFP4 with vLLM + DFlash2
+│   └── qwen-3.8-27b-vllm/   # Qwen3.8-27B NVFP4 with vLLM + DFlash2
 ```
 
 ## Documentation
@@ -33,7 +33,7 @@ GPU-based LLM inference runs via `sparkrun` in `sparkrun/`:
 | Setup | Model | GPU | Details | Source / Recipe |
 |-------|-------|-----|---------|-----------------|
 | `sparkrun/qwen-3.8-27b-sglang/` | Qwen3.8-27B | DGX Spark (NVFP4 + DFlash2) | `RadixArk/Qwen3.8-27B-NVFP4` with `incoai/Qwen3.8-27B-DFlash2` (sglang) | [recipe.yaml](sparkrun/qwen-3.8-27b-sglang/recipe.yaml) |
-| `sparkrun/qwen3.8-27b/` | Qwen3.8-27B | DGX Spark (NVFP4 + DFlash2) | `unsloth/Qwen3.8-27B-NVFP4` with `z-lab/Qwen3.8-27B-DFlash2` (vLLM) | [recipe.yaml](sparkrun/qwen3.8-27b/recipe.yaml) |
+| `sparkrun/qwen-3.8-27b-vllm/` | Qwen3.8-27B | DGX Spark (NVFP4 + DFlash2) | `unsloth/Qwen3.8-27B-NVFP4` with `z-lab/Qwen3.8-27B-DFlash2` (vLLM) | [recipe.yaml](sparkrun/qwen-3.8-27b-vllm/recipe.yaml) |
 
 All setups expose an OpenAI-compatible API at `http://localhost:8000/v1`.
 
