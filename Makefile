@@ -1,4 +1,5 @@
 SHELL := /bin/bash
+export PATH := $(HOME)/.local/bin:$(PATH)
 
 SYSTEMD_SERVICES := hermes-dashboard agentsview
 SYSTEMD_DIR := $(CURDIR)/systemd
