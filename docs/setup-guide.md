@@ -24,20 +24,11 @@ make systemd-link    # Generate + link services
 make systemd-enable  # Enable all services
 ```
 
-## vLLM Inference (Docker Compose / sparkrun)
+## LLM Inference (sparkrun)
 
-GPU-based LLM inference runs via Docker Compose or sparkrun. Choose one of the pre-configured setups:
+GPU-based LLM inference runs via sparkrun:
 
-### Option A: Qwen3.6-35B-A3B (NVFP4 + DFlash)
-
-```bash
-cd vllm/qwen3.6-35b-a3b
-docker compose up -d
-```
-
-This uses the AEON-7 NVFP4 quantized model with DFlash speculative decoding on DGX Spark.
-
-### Option B: Qwen3.8-27B (sparkrun)
+### Qwen3.8-27B (sparkrun)
 
 Install `sparkrun` first if not already installed:
 
@@ -49,19 +40,19 @@ Run the recipe:
 
 ```bash
 # Run solo on single DGX Spark node
-sparkrun run vllm/qwen3.8-27b/recipe.yaml --solo
+sparkrun run sparkrun/qwen-3.8-27b-sglang/recipe.yaml --solo
 
 # Auto restart when the OS restarts (or: make sparkrun-run)
-sparkrun run vllm/qwen3.8-27b/recipe.yaml --solo --restart unless-stopped
+sparkrun run sparkrun/qwen-3.8-27b-sglang/recipe.yaml --solo --restart unless-stopped
 
 # Or specify cluster/host
-sparkrun run vllm/qwen3.8-27b/recipe.yaml --hosts <spark-ip>
+sparkrun run sparkrun/qwen-3.8-27b-sglang/recipe.yaml --hosts <spark-ip>
 
 # View logs
-sparkrun logs Qwen3.8-27B-NVFP4-DFlash2-unsloth-NVIDIA-DGX-Spark-prod-v4
+sparkrun logs Qwen3.8-27B-NVFP4
 ```
 
-This uses the `unsloth/Qwen3.8-27B-NVFP4` checkpoint with `z-lab/Qwen3.8-27B-DFlash2` (k=8 speculative decoding) and serves model `qwen38-27b-unsloth-nvfp4-dflash2`.
+This uses the `RadixArk/Qwen3.8-27B-NVFP4` checkpoint with `incoai/Qwen3.8-27B-DFlash2` speculative decoding via SGLang.
 
 ### Verify Inference
 

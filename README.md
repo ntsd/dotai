@@ -11,9 +11,9 @@
 │   ├── README.md         # Systemd setup guide
 │   ├── *.service.template # Service unit templates
 │   └── *.service          # Generated service units
-├── vllm/                 # LLM inference configs (Docker Compose / sparkrun)
-│   ├── qwen3.6-35b-a3b/  # NVFP4 35B with DFlash on DGX Spark
-│   └── qwen3.8-27b/      # Qwen3.8-27B NVFP4 with DFlash2 (sparkrun recipe)
+├── sparkrun/             # LLM inference configs (sparkrun recipes)
+│   ├── qwen-3.8-27b-sglang/ # Qwen3.8-27B NVFP4 with SGLang + DFlash2
+│   └── qwen3.8-27b/         # Qwen3.8-27B NVFP4 with vLLM + DFlash2
 ```
 
 ## Documentation
@@ -26,14 +26,14 @@
 | [docs/runbook.md](docs/runbook.md) | Operations runbook (restarting, emergency procedures) |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | Troubleshooting guides (systemd, vLLM/GPU) |
 
-## vLLM Inference (Optional)
+## Sparkrun Inference (Optional)
 
-GPU-based LLM inference runs via Docker Compose or `sparkrun` in `vllm/`:
+GPU-based LLM inference runs via `sparkrun` in `sparkrun/`:
 
 | Setup | Model | GPU | Details | Source / Recipe |
 |-------|-------|-----|---------|-----------------|
-| `vllm/qwen3.6-35b-a3b/` | Qwen3.6-35B-A3B | DGX Spark (NVFP4 + DFlash) | Speculative decoding with AEON-7 | https://github.com/AEON-7/Qwen3.6-35B-A3B-heretic-NVFP4-DFlash |
-| `vllm/qwen3.8-27b/` | Qwen3.8-27B | DGX Spark (NVFP4 + DFlash2) | `unsloth/Qwen3.8-27B-NVFP4` with `z-lab/Qwen3.8-27B-DFlash2` (k=8) | [recipe.yaml](vllm/qwen3.8-27b/recipe.yaml) |
+| `sparkrun/qwen-3.8-27b-sglang/` | Qwen3.8-27B | DGX Spark (NVFP4 + DFlash2) | `RadixArk/Qwen3.8-27B-NVFP4` with `incoai/Qwen3.8-27B-DFlash2` (sglang) | [recipe.yaml](sparkrun/qwen-3.8-27b-sglang/recipe.yaml) |
+| `sparkrun/qwen3.8-27b/` | Qwen3.8-27B | DGX Spark (NVFP4 + DFlash2) | `unsloth/Qwen3.8-27B-NVFP4` with `z-lab/Qwen3.8-27B-DFlash2` (vLLM) | [recipe.yaml](sparkrun/qwen3.8-27b/recipe.yaml) |
 
 All setups expose an OpenAI-compatible API at `http://localhost:8000/v1`.
 
@@ -49,29 +49,22 @@ Deploy the recipe using `sparkrun` on DGX Spark:
 
 ```bash
 # Run in solo mode (single-node DGX Spark)
-sparkrun run vllm/qwen3.8-27b/recipe.yaml --solo
+sparkrun run sparkrun/qwen-3.8-27b-sglang/recipe.yaml --solo
 
 # Auto restart when the OS restarts (or via make: make sparkrun-run)
-sparkrun run vllm/qwen3.8-27b/recipe.yaml --solo --restart unless-stopped
+sparkrun run sparkrun/qwen-3.8-27b-sglang/recipe.yaml --solo --restart unless-stopped
 
 # Or target a specific cluster/host
-sparkrun run vllm/qwen3.8-27b/recipe.yaml --hosts <spark-ip>
+sparkrun run sparkrun/qwen-3.8-27b-sglang/recipe.yaml --hosts <spark-ip>
 
 # View running logs (or: make sparkrun-logs)
-sparkrun logs Qwen3.8-27B-NVFP4-DFlash2-unsloth-NVIDIA-DGX-Spark-prod-v4
+sparkrun logs Qwen3.8-27B-NVFP4
 
 # Check status (or: make sparkrun-status)
 sparkrun status
 
 # Stop the workload (or: make sparkrun-stop)
-sparkrun stop Qwen3.8-27B-NVFP4-DFlash2-unsloth-NVIDIA-DGX-Spark-prod-v4
-```
-
-### Running Qwen3.6 with Docker Compose
-
-```bash
-cd vllm/qwen3.6-35b-a3b
-docker compose up -d
+sparkrun stop Qwen3.8-27B-NVFP4
 ```
 
 ## Makefile Commands

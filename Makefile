@@ -4,8 +4,8 @@ SYSTEMD_SERVICES := hermes-dashboard agentsview
 SYSTEMD_DIR := $(CURDIR)/systemd
 NGINX_DIR := $(CURDIR)/nginx
 NGINX_SITES_ENABLED := /etc/nginx/sites-enabled
-SPARKRUN_RECIPE := vllm/qwen3.8-27b/recipe.yaml
-SPARKRUN_WORKLOAD := Qwen3.8-27B-NVFP4-DFlash2-unsloth-NVIDIA-DGX-Spark-prod-v4
+SPARKRUN_RECIPE := sparkrun/qwen-3.8-27b-sglang/recipe.yaml
+SPARKRUN_WORKLOAD := Qwen3.8-27B-NVFP4
 
 SVC ?=
 SERVICE ?= $(SVC)
