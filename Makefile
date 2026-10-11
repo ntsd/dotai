@@ -6,7 +6,6 @@ SYSTEMD_DIR := $(CURDIR)/systemd
 NGINX_DIR := $(CURDIR)/nginx
 NGINX_SITES_ENABLED := /etc/nginx/sites-enabled
 SPARKRUN_RECIPE := sparkrun/qwen-3.8-27b-sglang/recipe.yaml
-SPARKRUN_WORKLOAD := Qwen3.8-27B-NVFP4
 
 SVC ?=
 SERVICE ?= $(SVC)
@@ -225,11 +224,11 @@ sparkrun-run:
 sparkrun-start: sparkrun-run
 
 sparkrun-stop:
-	sparkrun stop $(SPARKRUN_WORKLOAD)
+	sparkrun stop $(SPARKRUN_RECIPE)
 
 sparkrun-status:
 	sparkrun status
 
 sparkrun-logs:
-	sparkrun logs $(SPARKRUN_WORKLOAD)
+	sparkrun logs $(SPARKRUN_RECIPE)
 
