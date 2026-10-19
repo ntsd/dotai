@@ -15,7 +15,7 @@ server {
     client_max_body_size 50m;
 
     location / {
-        proxy_pass         http://127.0.0.1:8080;
+        proxy_pass         http://127.0.0.1:11002;
         proxy_http_version 1.1;
 
         # Client IP and protocol forwarding
